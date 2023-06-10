@@ -25,6 +25,29 @@ const client = new MongoClient(uri, {
   },
 });
 
+const run = async () => {
+  const productCollection = client.db("emaJohnDB").collection("products");
+  try {
+    // get all the products
+    app.get("/products", async (req, res) => {
+      const currentPage = parseInt(req.query.currentPage);
+      const limit = parseInt(req.query.limit);
+      //   console.log(currentPage, limit);
+      const query = {};
+      const cursor = productCollection.find(query);
+      // gat total data count
+      const count = await productCollection.estimatedDocumentCount();
+      const result = await cursor
+        .skip(currentPage * limit)
+        .limit(limit)
+        .toArray();
+      res.send({ count: count, products: result });
+    });
+  } finally {
+  }
+};
+run().catch(console.dirs);
+
 app.listen(port, () => {
   console.log(`Ema john server is running on http://localhost:${port}`);
 });
